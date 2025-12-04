@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: market_postgres
+    environment:
+      POSTGRES_USER: market
+      POSTGRES_PASSWORD: market123
+      POSTGRES_DB: market_data
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
