@@ -105,6 +105,7 @@ The following technologies form the foundation of the system:
 
 This minimal tech foundation is intentionally simple in v1, yet scalable enough to support upcoming phases such as historical ingestion, caching, and real-time extensions.
 
+---
 
 ## 🗺️ Roadmap
 
