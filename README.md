@@ -1,38 +1,44 @@
-Development Standards
-Python
+# Market Data Platform - Multi-exchange candle & Metadata Service
 
-Version: 3.12.4
+## 🧭 Overview
 
-Code Style
+The **Market Data Platform** is a modular backend system designed to provide a
+**unified market-data layer** across multiple cryptocurrency exchanges.
 
-Formatter: black
+Its purpose is to take fragmented, exchange-specific market data and transform
+it into a **clean, consistent, canonical format** that any application or trading
+system can rely on.
 
-Import Sorter: isort
+The platform exposes this standardized data through a **secure, high-performance
+HTTP API**, making it suitable for:
 
-Linter (optional): flake8
+- automated trading systems  
+- research pipelines  
+- market-data dashboards  
+- multi-exchange analytics tools  
 
-Commit Convention
+### 🎯 Why This Project Exists
 
-We use Conventional Commits, examples:
+Current exchange APIs are inconsistent — symbols differ, intervals differ, and
+each exchange structures data in its own proprietary format.  
+This platform provides a **single source of truth** by offering:
 
-feat(core): add candle model
-fix(api): correct response format
-chore: setup black and isort
-docs: update README
-infra: update docker configs
+- a unified **Canonical Candle Model**  
+- centralized metadata for symbols & intervals  
+- pluggable **exchange adapters**  
+- Dockerized microservices for clean scalability  
 
-Naming Conventions
+This makes the system both a solid **production-ready component** and a strong
+**portfolio asset** demonstrating backend architecture, API design, and
+multi-service orchestration.
 
-Files: snake_case
+### 🔧 What the Platform Aims to Deliver (v1)
 
-Variables: snake_case
+- Multi-exchange candle ingestion (Binance Futures, Hyperliquid, Coinbase)  
+- A reusable **Core Layer** containing canonical models & adapters  
+- A **Syncer Service** for keeping exchange metadata up-to-date  
+- A public-facing **FastAPI service** with JWT authentication  
+- A structured PostgreSQL schema for symbols, intervals, and future extensions  
+- Fully isolated development & deployment using **Docker Compose**  
 
-Classes: PascalCase
-
-Constants: UPPER_CASE
-
-Dependencies
-
-Each service has its own requirements.txt
-
-A requirements-dev.txt will be added later for development tooling
+---
