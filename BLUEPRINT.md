@@ -177,3 +177,47 @@ MarketDataPlatform/
 ├── .env.example
 ├── BLUEPRINT.md
 └── README.md
+
+
+
+Docker Architecture — Final (Phase 1)
+
+Network:
+
+mdp_network (bridge)
+
+Containers:
+
+postgres
+
+api-service
+
+syncer-service
+
+Rules:
+
+همه سرویس‌ها داخل یک شبکه هستند
+
+Postgres healthcheck تعیین‌کننده شروع سرویس‌هاست
+
+env variables از .env تزریق می‌شوند
+
+volume داده پایدار فراهم می‌کند
+
+imageها از python:3.12-slim ساخته می‌شوند
+
+Container Interaction:
+
+api-service → read/write → Postgres
+
+syncer-service → write → Postgres
+
+postgres → provider for both services
+
+Secrets Model:
+
+.env به‌صورت untracked
+
+شامل creds DB + JWT_SECRET
+
+secretهای صرافی در همین فایل اضافه می‌شود
