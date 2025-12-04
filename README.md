@@ -42,3 +42,31 @@ multi-service orchestration.
 - Fully isolated development & deployment using **Docker Compose**  
 
 ---
+
+## 🚫 Non-Goals (v1)
+
+The first version of the platform focuses on building a clean, minimal, and stable foundation.  
+To keep the scope controlled, the following items are **explicitly out of scope** for v1:
+
+- **Real-time streaming (WebSocket feeds)**  
+  No live tick or candle streaming will be implemented in the initial release.
+
+- **Gap-filling or interval reconstruction**  
+  The platform will not generate synthetic candles or rebuild missing intervals.
+
+- **Aggregated intervals (e.g., building 15m from 1m)**  
+  All intervals in v1 must come directly from the exchange APIs.
+
+- **Multi-exchange price merging or synthetic “global price”**  
+  Each exchange is treated independently; no consolidation layer is planned for v1.
+
+- **Historical backfill beyond basic metadata sync**  
+  The syncer focuses only on symbols and intervals in v1, not full historical candle ingestion.
+
+- **Advanced monitoring / alerting stack**  
+  Tools like Prometheus, Grafana, or centralized logging will be added only in later versions.
+
+- **High-availability or distributed deployment**  
+  v1 runs as a simple Docker Compose environment, not a production cluster.
+
+These constraints help maintain a lean, manageable foundation while enabling clean expansion in future phases.
