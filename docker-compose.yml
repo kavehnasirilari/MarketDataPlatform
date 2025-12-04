@@ -1,17 +1,51 @@
 version: "3.9"
 
 services:
+
   postgres:
     image: postgres:16
-    container_name: market_postgres
+    container_name: mdp_postgres
     environment:
-      POSTGRES_USER: market
-      POSTGRES_PASSWORD: market123
       POSTGRES_DB: market_data
+      POSTGRES_USER: mdp_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mdp_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api-service:
+    build: ./api-service
+    container_name: mdp_api
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - mdp_network
+
+  syncer-service:
+    build: ./syncer-service
+    container_name: mdp_syncer
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - mdp_network
 
 volumes:
   postgres_data:
+
+networks:
+  mdp_network:
+    driver: bridge
