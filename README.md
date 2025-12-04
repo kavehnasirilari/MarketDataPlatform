@@ -70,3 +70,101 @@ To keep the scope controlled, the following items are **explicitly out of scope*
   v1 runs as a simple Docker Compose environment, not a production cluster.
 
 These constraints help maintain a lean, manageable foundation while enabling clean expansion in future phases.
+
+---
+
+## 🛠️ Tech Stack
+
+The platform is built using a clean, modular backend architecture.  
+The following technologies form the foundation of the system:
+
+### **Core Technologies**
+- **Python 3.12** — primary language for all services  
+- **FastAPI** — high-performance HTTP API for serving market data  
+- **SQLAlchemy 2.x** — ORM layer for database interaction  
+- **PostgreSQL 16** — main storage for symbols, intervals, and future candle data  
+
+### **Service Architecture**
+- **Docker + Docker Compose** — isolated, reproducible multi-service environment  
+- **Modular Microservices**  
+  - `api-service` (public-facing API)  
+  - `syncer-service` (exchange metadata sync)  
+  - shared `core` module for models, adapters, and mappings  
+
+### **Authentication**
+- **JWT (JSON Web Tokens)** — secure access to API endpoints  
+
+### **Networking & Integrations**
+- **HTTPX / Requests** — communication with exchange APIs  
+- **pydantic** — data validation and serialization  
+
+### **Development & Tooling**
+- **black + isort** — code formatting  
+- **pytest** — testing framework  
+- **.env-based configuration** — environment-variable-driven setup  
+
+This minimal tech foundation is intentionally simple in v1, yet scalable enough to support upcoming phases such as historical ingestion, caching, and real-time extensions.
+
+
+## 🗺️ Roadmap
+
+The project is being developed in well-defined phases to ensure clarity,
+scalability, and clean architectural progression.
+
+### **Phase 0 — Project Bootstrap**
+- Repository initialization  
+- Folder structure layout  
+- Base documentation (README, BLUEPRINT, ROADMAP)
+
+### **Phase 1 — Docker Architecture Design**
+- Designing service boundaries  
+- Planning Docker Compose structure  
+- Defining environment variables
+
+### **Phase 2 — Database Layer (PostgreSQL + ORM)**
+- Core schema design  
+- SQLAlchemy models  
+- Migration setup (Alembic)
+
+### **Phase 3 — Core Layer**
+- Canonical Candle & Symbol models  
+- Exchange adapters (Binance, Hyperliquid, Coinbase)  
+- Mapping & utilities
+
+### **Phase 4 — Syncer Service**
+- Metadata synchronization (symbols, intervals)  
+- Integration with Core layer and DB
+
+### **Phase 5 — API Service**
+- FastAPI implementation  
+- JWT-secured endpoints for metadata & candles
+
+### **Phase 6 — Docker Implementation**
+- Full multi-service build  
+- Local deployment via Docker Compose
+
+### **Phase 7 — Testing & QA**
+- Unit tests  
+- Adapter tests  
+- API tests  
+- End-to-end validation
+
+---
+
+These phases will be expanded as the system grows, and the README will evolve
+to reflect the project’s real implementation and capabilities.
+
+---
+
+## 📌 Development Progress
+
+A phase-based checklist showing the current state of the project:
+
+- [x] Phase 0 — Project Bootstrap  
+- [x] Phase 1 — Docker Architecture Design  
+- [ ] Phase 2 — Database Layer (in progress)  
+- [ ] Phase 3 — Core Layer  
+- [ ] Phase 4 — Syncer Service  
+- [ ] Phase 5 — API Service  
+- [ ] Phase 6 — Docker Implementation  
+- [ ] Phase 7 — Testing & QA 
