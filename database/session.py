@@ -1,6 +1,7 @@
 # database/session.py
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from contextlib import contextmanager
 
 #-------------------------------------------------------------
 # NOTE for reviewers / futur maintainers:
@@ -26,4 +27,14 @@ engin= create_engine(DATABASE_URL, echo=True)
 #Session Facotry
 SessionLocal = sessionmaker(bind=engin, autoflush=False, autocommit=False)
 
-
+@contextmanager
+def get_session():
+    session = SessionLocal()
+    try:
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
