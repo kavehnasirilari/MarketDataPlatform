@@ -19,7 +19,7 @@ class Base(DeclarativeBase):
     pass
 
 #engin
-DATABASE_URL = "postgresql+psycopg2://postgres:postgres@localhost:5432/market_data"
+DATABASE_URL = "postgresql+psycopg2://mdp_user:StrongPassword123!@localhost:5432/market_data"
 
 engin= create_engine(DATABASE_URL, echo=True)
 
