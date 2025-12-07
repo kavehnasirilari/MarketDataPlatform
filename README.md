@@ -163,8 +163,8 @@ A phase-based checklist showing the current state of the project:
 
 - [x] Phase 0 — Project Bootstrap  
 - [x] Phase 1 — Docker Architecture Design  
-- [ ] Phase 2 — Database Layer (in progress)  
-- [ ] Phase 3 — Core Layer  
+- [x] Phase 2 — Database Layer   
+- [ ] Phase 3 — Core Layer (in progress)
 - [ ] Phase 4 — Syncer Service  
 - [ ] Phase 5 — API Service  
 - [ ] Phase 6 — Docker Implementation  
