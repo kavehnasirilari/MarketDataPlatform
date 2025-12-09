@@ -11,7 +11,7 @@ class MarketType(Enum):
     FUTURES = "futures"
     PREP = "prep"
 
-class interval(Enum):
+class Interval(Enum):
     M1 = "1m"
     M5 = "5m"
     M15 = "15m"
