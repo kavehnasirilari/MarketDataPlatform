@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from core.models.enums import Exchange, MarketType, interval
+from core.models.enums import Exchange, MarketType, Interval
 
 @dataclass(frozen=True)
 class Candle:
-    timstapmp: int
+    open_timestamp: int
+    close_timestamp: int
 
     open: float
     high: float
@@ -14,5 +15,5 @@ class Candle:
     exchange: Exchange
     market_type: MarketType
     symbol: str
-    interval: interval
+    interval: Interval
 
