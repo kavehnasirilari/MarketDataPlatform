@@ -4,7 +4,7 @@ class CoreError(Exception):
     """Base class for all core exceptions."""
     pass
 
-class AdaptorError(CoreError):
+class AdapterError(CoreError):
     """Exception raised for errors related to adaptors."""
     pass
 
