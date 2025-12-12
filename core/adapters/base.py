@@ -5,6 +5,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, List
 
+from core.mapping.interval_mapping import map_interval
+
 from core.models.candle import Candle
 from core.models.enums import Exchange, MarketType, Interval
 from core.exceptions import (
@@ -106,14 +108,13 @@ class BaseAdapter(ABC):
         raise NotImplementedError
     #-----------------------------
 
-    @abstractmethod
     def normalize_interval(self, interval: Interval) -> str:
         """
         Convert a cannonical interval to the exchange-spesific interval representation.
         
         Must raise Mapping Error if mapping is not possible.
         """
-        raise NotImplementedError
+        return map_interval(self.exchange, interval)
     #-----------------------------
 
     @abstractmethod
