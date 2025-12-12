@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Any, List
 
 from core.mapping.interval_mapping import map_interval
+from core.mapping.symbol_mapping import map_symbol
 
 from core.models.candle import Candle
 from core.models.enums import Exchange, MarketType, Interval
@@ -97,7 +98,6 @@ class BaseAdapter(ABC):
         raise NotImplementedError
     #-----------------------------
 
-    @abstractmethod
     def normalize_symbol(self, symbol: str) -> str:
         """
         convert canonical symbol (e.g. 'btc)
@@ -105,7 +105,7 @@ class BaseAdapter(ABC):
         
         this method must raise MappingError when mapping is not possible
         """
-        raise NotImplementedError
+        return map_symbol(self.exchange, symbol)
     #-----------------------------
 
     def normalize_interval(self, interval: Interval) -> str:
