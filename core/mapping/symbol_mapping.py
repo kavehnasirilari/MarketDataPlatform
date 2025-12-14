@@ -5,6 +5,10 @@ SYMBOL_MAPPING: dict[Exchange, dict[str, str]] = {
     Exchange.BINANCE: {
         "BTC/USDT": "BTCUSDT",
         "ETH/USDT": "ETHUSDT",
+    },
+    Exchange.HYPERLIQUID: {
+        "BTC/USDC": "BTC",
+        "ETH/USDC": "ETH",
     }
 }
 
