@@ -10,7 +10,8 @@ it into a **clean, consistent, canonical format** that any application or tradin
 system can rely on.
 
 The platform exposes this standardized data through a **secure, high-performance
-HTTP API**, making it suitable for:
+HTTP API**,(planned in Phase 5) 
+making it suitable for:
 
 - automated trading systems  
 - research pipelines  
@@ -129,7 +130,7 @@ scalability, and clean architectural progression.
 
 ### **Phase 3 — Core Layer**
 - Canonical Candle & Symbol models  
-- Exchange adapters (Binance, Hyperliquid, Coinbase)  
+- Exchange adapters (Binance Spot & Futures, Hyperliquid Futures)   
 - Mapping & utilities
 
 ### **Phase 4 — Syncer Service**
@@ -164,8 +165,8 @@ A phase-based checklist showing the current state of the project:
 - [x] Phase 0 — Project Bootstrap  
 - [x] Phase 1 — Docker Architecture Design  
 - [x] Phase 2 — Database Layer   
-- [ ] Phase 3 — Core Layer (in progress)
-- [ ] Phase 4 — Syncer Service  
+- [x] Phase 3 — Core Layer 
+- [ ] Phase 4 — Syncer Service (in progress) 
 - [ ] Phase 5 — API Service  
 - [ ] Phase 6 — Docker Implementation  
 - [ ] Phase 7 — Testing & QA 
