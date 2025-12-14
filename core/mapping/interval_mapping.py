@@ -9,10 +9,10 @@ INTERVAL_MAPPING: dict[Exchange, dict[Interval, str]] = {
         Interval.H1: "1h",
     },
     Exchange.HYPERLIQUID: {
-        Interval.M1: "60",
-        Interval.M5: "300",
-        Interval.M15: "900",
-        Interval.H1: "3600",
+        Interval.M1: "1m",
+        Interval.M5: "5m",
+        Interval.M15: "15m",
+        Interval.H1: "1h",
     },
 }
 
