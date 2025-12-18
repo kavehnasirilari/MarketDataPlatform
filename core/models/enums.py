@@ -4,8 +4,6 @@ class Exchange(Enum):
     BINANCE = "binance"
     COINBASE = "coinbase"
     HYPERLIQUID = "hyperliquid"
-
-
 class MarketType(Enum):
     SPOT = "spot"
     FUTURES = "futures"
@@ -19,3 +17,7 @@ class Interval(Enum):
     H4 = "4h"
     D1 = "1d"
     W1 = "1w"
+    
+class ExchangeStatus(Enum):
+    ACTIVE = "active"
+    UNSUPPORTED = "unsupported"
