@@ -1,8 +1,16 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import (
+    Column, 
+    Integer, 
+    String, 
+    ForeignKey, 
+    BigInteger, 
+    Float,
+    DateTime,
+    func,
+    UniqueConstraint)
 from sqlalchemy.orm import relationship
 from database.session import Base
-
-
+ 
 #-------------------------------------------------------------------------
 #exchange Model
 #------------------------------------------------------------------------
@@ -46,6 +54,11 @@ class Interval(Base):
 
     # relationships
     supported_markets = relationship("SupportedMarket", back_populates="interval")
+    candles = relationship(
+        "Candle",
+        back_populates="interval",
+        lazy="noload",
+    )
 #---------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------
@@ -67,6 +80,12 @@ class ExchangeMarket(Base):
     canonical_symbol = relationship("CanonicalSymbol", back_populates= "markets")
 
     supported_markets = relationship("SupportedMarket", back_populates="exchange_market")
+
+    candles = relationship(
+        "Candle",
+        back_populates="exchange_market",
+        lazy="noload",
+    )
 #---------------------------------------------------------------------------------------
 
 
@@ -88,3 +107,55 @@ class SupportedMarket(Base):
     interval = relationship("Interval", back_populates="supported_markets")
 #--------------------------------------------------------------
 
+
+#------------------------------------------------
+# Candles Model
+#------------------------------------------------
+class Candle(Base):
+    __tablename__ = "candles"
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    
+    exchange_market_id = Column(
+        Integer, ForeignKey("exchange_markets.id"), nullable=False
+    )
+    interval_id = Column(
+        Integer, ForeignKey("intervals.id"), nullable=False
+    )
+
+    timestamp = Column(BigInteger, nullable=False)
+
+    open = Column(Float, nullable=False)
+    high = Column(Float, nullable=False)
+    low = Column(Float, nullable=False)
+    close = Column(Float, nullable=False)
+    volume = Column(Float, nullable=False)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    # ORM relationships (read-only usage)
+    exchange_market = relationship(
+        "ExchangeMarket",
+        back_populates="candles",
+        lazy="noload",
+    )
+
+    interval = relationship(
+        "Interval",
+        back_populates="candles",
+        lazy="noload",
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "exchange_market_id",
+            "interval_id",
+            "timestamp",
+            name="uq_candle_market_interval_ts",
+        ),
+    )
+#------------------------------------------------
