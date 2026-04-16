@@ -167,6 +167,6 @@ A phase-based checklist showing the current state of the project:
 - [x] Phase 2 — Database Layer   
 - [x] Phase 3 — Core Layer 
 - [x] Phase 4 — Syncer Service 
-- [ ] Phase 5 — API Service (in progress) 
-- [ ] Phase 6 — Docker Implementation  
+- [x] Phase 5 — API Service 
+- [ ] Phase 6 — Docker Implementation (in progress)  
 - [ ] Phase 7 — Testing & QA 
