@@ -15,7 +15,7 @@ class PolicyDecision:
     reason: str | None = None
 
 class PolicyEngine:
-    def evaluate(self, attribution_ctx, request) -> PolicyDecision:
+    def evaluate(self,snapshot, attribution_ctx, request) -> PolicyDecision:
         raise NotImplemented
     
 
