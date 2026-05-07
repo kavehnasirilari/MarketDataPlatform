@@ -1,27 +1,29 @@
-
 services:
-
   postgres:
     image: postgres:16
     container_name: mdp_postgres
-    environment:
-      POSTGRES_DB: market_data
-      POSTGRES_USER: mdp_user
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file: .env
     ports:
       - "5432:5432"
+    restart: unless-stopped
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - marketdataplatform_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mdp_user"]
+      test: ["CMD-SHELL", "pg_isready -U mdp_user -d market_data"]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - mdp_network
 
   api-service:
-    build: ./api-service
+    build:
+      context: .
+      dockerfile: api_service/Dockerfile
     container_name: mdp_api
     env_file: .env
+    environment:
+      POSTGRES_HOST: postgres
     depends_on:
       postgres:
         condition: service_healthy
@@ -32,18 +34,23 @@ services:
       - mdp_network
 
   syncer-service:
-    build: ./syncer-service
+    build:
+      context: .
+      dockerfile: syncer_service/Dockerfile
     container_name: mdp_syncer
     env_file: .env
+    environment:
+      POSTGRES_HOST: postgres
     depends_on:
       postgres:
         condition: service_healthy
-    restart: unless-stopped
+    restart: "no"
     networks:
       - mdp_network
 
 volumes:
-  postgres_data:
+  marketdataplatform_postgres_data:
+    external: true
 
 networks:
   mdp_network:

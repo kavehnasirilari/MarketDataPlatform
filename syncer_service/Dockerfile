@@ -4,20 +4,22 @@ FROM python:3.12-slim
 # Set working directory
 WORKDIR /app
 
-# Install required system libs
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy dependencies
-COPY requirements.txt .
+# Copy dependencies file
+COPY syncer_service/requirements.txt ./requirements.txt
 
 # Install Python packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project code
-COPY . .
+# Copy required project modules
+COPY syncer_service ./syncer_service
+COPY database ./database
+COPY core ./core
 
-# Default command (can be modified later)
-CMD ["python", "syncer/main.py"]
+# Default command
+CMD ["python", "-m", "syncer_service.syncer.run_base_sync"]
