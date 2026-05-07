@@ -38,7 +38,7 @@ multi-service orchestration.
 - Multi-exchange candle ingestion (Binance Futures, Hyperliquid, Coinbase)  
 - A reusable **Core Layer** containing canonical models & adapters  
 - A **Syncer Service** for keeping exchange metadata up-to-date  
-- A public-facing **FastAPI service** with JWT authentication  
+- A public-facing **FastAPI service**  
 - A structured PostgreSQL schema for symbols, intervals, and future extensions  
 - Fully isolated development & deployment using **Docker Compose**  
 
@@ -92,9 +92,6 @@ The following technologies form the foundation of the system:
   - `syncer-service` (exchange metadata sync)  
   - shared `core` module for models, adapters, and mappings  
 
-### **Authentication**
-- **JWT (JSON Web Tokens)** — secure access to API endpoints  
-
 ### **Networking & Integrations**
 - **HTTPX / Requests** — communication with exchange APIs  
 - **pydantic** — data validation and serialization  
@@ -139,7 +136,7 @@ scalability, and clean architectural progression.
 
 ### **Phase 5 — API Service**
 - FastAPI implementation  
-- JWT-secured endpoints for metadata & candles
+- endpoints for metadata & candles
 
 ### **Phase 6 — Docker Implementation**
 - Full multi-service build  
@@ -168,5 +165,5 @@ A phase-based checklist showing the current state of the project:
 - [x] Phase 3 — Core Layer 
 - [x] Phase 4 — Syncer Service 
 - [x] Phase 5 — API Service 
-- [ ] Phase 6 — Docker Implementation (in progress)  
+- [x] Phase 6 — Docker Implementation (in progress)  
 - [ ] Phase 7 — Testing & QA 
