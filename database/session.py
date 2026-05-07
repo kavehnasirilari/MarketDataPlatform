@@ -1,28 +1,31 @@
 # database/session.py
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from contextlib import contextmanager
-
-#-------------------------------------------------------------
-# NOTE for reviewers / futur maintainers:
-# in phase 2 we hardcode DATABASE_URL only for local development
-# and ambelic migration initialization.
-
-# TODO (phase 5-6)
-#   -move DATABASE_URL to environment variables (.env)
-#   -configure docker-compose to inject env values
-#   -replace this hardcode string with `os.getenv("DATABASE_URL")`
-#   -insure engin works in both local & docker environments
-#-----------------------------------------------------------------
 
 
 class Base(DeclarativeBase):
     pass
 
-#engin
-DATABASE_URL = "postgresql+psycopg2://mdp_user:StrongPassword123!@localhost:5432/market_data"
 
-engin= create_engine(DATABASE_URL, echo=True)
+def build_database_url():
+    return (
+        f"postgresql+psycopg2://"
+        f"{os.getenv('POSTGRES_USER')}:"
+        f"{os.getenv('POSTGRES_PASSWORD')}@"
+        f"{os.getenv('POSTGRES_HOST', 'localhost')}:"
+        f"{os.getenv('POSTGRES_PORT')}/"
+        f"{os.getenv('POSTGRES_DB')}"
+    )
+
+
+
+DATABASE_URL = build_database_url()
+
+#engin
+SQL_ECHO = os.getenv("SQL_ECHO", "false").lower() == "true"
+engin= create_engine(DATABASE_URL, echo=SQL_ECHO)
 
 #Session Facotry
 SessionLocal = sessionmaker(bind=engin, autoflush=False, autocommit=False)
