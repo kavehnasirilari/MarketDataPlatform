@@ -4,3 +4,6 @@ flake8
 mypy_extensions
 pycodestyle
 pyflakes
+pytest==8.3.5
+httpx==0.28.1
+pytest-asyncio==0.26.0
