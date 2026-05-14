@@ -11,6 +11,7 @@ class DataResault:
 @dataclass
 class MetadataResult:
     available: bool
+    message: str | None = None
     payload: object | None = None
 
 class DataAccessor:

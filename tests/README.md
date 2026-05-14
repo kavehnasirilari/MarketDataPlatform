@@ -1,123 +1,229 @@
-# Tests
+# MarketDataPlatform Testing Guide
 
-This directory contains the test suite for Phase 7 — Testing & QA.
+## Purpose
 
----
+This directory contains the Phase 7 Testing & QA suite for MarketDataPlatform.
 
-## Structure
-
-- `unit/`  
-  Small isolated tests that do not require external services.
-
-- `integration/`  
-  Tests that verify interaction between application components, database, API routes, orchestration flow, and service layers.
-
-- `e2e/`  
-  End-to-end validation tests that verify the platform can run from a clean environment using Docker Compose.
+The goal of this phase is to validate API behavior, internal execution flow, data contracts, Docker warm-start behavior, and basic end-to-end platform readiness.
 
 ---
 
-## Phase 7 Goal
-
-The goal of this phase is to verify that the platform can be:
-
-- reproduced on a clean machine
-- started successfully
-- synchronized successfully
-- queried successfully
-
-without hidden setup steps or undocumented manual intervention.
-
----
-
-## Current Test Coverage
-
-### Unit Tests
-
-- pytest sanity validation
-- required project directory structure validation
-
-### Integration Tests
-
-#### Metadata Endpoint
-
-- `/metadata` success response contract
-- `/metadata` exchange and market structure validation
-
-#### Candles Endpoint
-
-- `/candles/...` response contract validation
-- invalid exchange behavior validation
-- unknown symbol behavior validation
-
-#### Routing
-
-- invalid route returns `404`
-
----
-
-## Current Test Suite Status
-
-Current suite result:
+## Test Structure
 
 ```text
-8 passed
+tests/
+├── unit/
+├── integration/
+│   └── internal/
+└── e2e/
 ```
 
 ---
 
-## Requirements
+## Unit Tests
 
-Integration tests currently require:
+Unit tests validate small, isolated project assumptions.
 
-- PostgreSQL container running
-- valid `.env`
-- database schema available
-- synchronized metadata
-- accessible API dependencies
+Current coverage includes:
+
+- pytest sanity check
+- required project directory structure
+
+Run:
+
+```bash
+pytest tests/unit -v
+```
 
 ---
 
-## Known Warnings
+## Integration Tests
 
-Current test runs produce deprecation warnings from:
+Integration tests validate API behavior and internal service contracts without requiring full remote deployment.
+
+Covered areas:
+
+- `/metadata` response contract
+- `/candles` response contract
+- invalid route behavior
+- metadata filtering
+- metadata no-data behavior
+- candle data integrity
+- orchestrator semantics
+- internal endpoint wiring
+- attribution resolver
+- policy engine
+- consumption state
+- data accessor behavior
+- policy + consumption integration
+- logging / observability contract
+
+Run:
+
+```bash
+pytest tests/integration -v
+```
+
+---
+
+## E2E Tests
+
+E2E tests validate the platform from the outside, usually through HTTP calls and Docker-based runtime checks.
+
+Covered areas:
+
+- API response contracts
+- invalid request contracts
+- no-data contracts
+- metadata filters
+- candle data integrity
+- metadata data integrity
+- Docker warm-start validation
+- health endpoint availability
+- remote deployment validation
+
+Run:
+
+```bash
+pytest tests/e2e -v
+```
+
+---
+
+## Full Test Suite
+
+Run all tests:
+
+```bash
+pytest -v
+```
+
+Expected current result:
 
 ```text
-api_service/app/observability/logging_config.py
+98 passed, 2 skipped
 ```
-
-Specifically:
-
-```python
-datetime.utcfromtimestamp(...)
-```
-
-These warnings are currently accepted because:
-
-- they do not affect runtime behavior
-- they do not break the test suite
-- previously completed phases are not modified unless necessary
 
 ---
 
-## Policy / Rate Limit Note
+## Skipped Tests
 
-The policy request limit was temporarily increased to prevent integration tests from being rate-limited by shared `testclient` attribution state during full suite execution.
+Some tests are intentionally skipped because they require external or isolated environments.
 
-A cleaner test-policy or policy-state reset mechanism may be added later.
+### Cold Start Validation
+
+Skipped because it requires:
+
+- isolated Docker project execution
+- database bootstrap / migration support
+- reliable image availability
+
+### Remote Deployment Validation
+
+Skipped unless `PUBLIC_API_BASE_URL` is set.
+
+Example:
+
+```bash
+PUBLIC_API_BASE_URL=https://example.com pytest tests/e2e/test_remote_deployment_validation.py -v
+```
 
 ---
 
-## Initial Focus
+## Important Contracts
 
-The first priority of Phase 7 is end-to-end reproducibility based on `TEST_PLAN.md`.
+### HTTP Status Codes
 
-Future expansion will include:
+Business/API-level invalid requests usually return:
 
-- additional unit tests
-- adapter validation tests
-- automated API validation
-- end-to-end Docker Compose validation
-- CI pipeline execution
-- test isolation improvements
-- policy mocking/reset support
+```text
+HTTP 200
+body.type = "error"
+```
+
+Unknown FastAPI routes must return:
+
+```text
+HTTP 404
+```
+
+### Metadata Query Parameters
+
+Current public metadata filter uses:
+
+```text
+market
+```
+
+not:
+
+```text
+market_type
+```
+
+### Candle Route Name
+
+Current internal orchestrator route name is:
+
+```text
+gat_candle
+```
+
+This is a known typo and is tracked for future cleanup.
+
+### Metadata No-Data Behavior
+
+Metadata no-data cases must not return HTTP 500.
+
+Current expected behavior:
+
+```text
+HTTP 200
+body.type = "error"
+body.data = null
+```
+
+### Health Endpoint
+
+The health endpoint is intentionally simple and does not pass through the full orchestrator.
+
+Expected response:
+
+```json
+{
+  "type": "success",
+  "message": null,
+  "data": {
+    "status": "ok"
+  }
+}
+```
+
+### Syncer Service Behavior
+
+The syncer service is treated as a job-style one-shot service.
+
+In warm-start validation, both states are acceptable:
+
+```text
+running
+```
+
+or:
+
+```text
+exited with exit code 0
+```
+
+---
+
+## Known Deferred Cleanup Items
+
+The following items are intentionally deferred and tracked separately:
+
+- decide public query parameter naming: `market` vs `market_type`
+- fix `gat_candle` typo in orchestrator route naming
+- define explicit orchestrator behavior for unknown internal routes
+- standardize semantic result typing: `SemanticType` enum vs raw string values
+- review inconsistent result models: `DataResault` vs `MetadataResult`
+- review typo / inconsistent messages like `not find` and `Interval not find`
