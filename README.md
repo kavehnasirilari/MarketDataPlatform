@@ -148,6 +148,15 @@ scalability, and clean architectural progression.
 - API tests  
 - End-to-end validation
 
+### **Phase 8 — Production Readiness**
+- Finalize database volume strategy for production and local environments
+- Standardize initial database schema/model creation flow
+- Add reliable startup/bootstrap process for base metadata synchronization
+- Define scheduled candle ingestion jobs, running 3–4 times per day
+- Harden environment configuration and production secrets handling
+- Improve deployment reliability and operational validation
+- Prepare the platform for stable production usage
+
 ---
 
 These phases will be expanded as the system grows, and the README will evolve
@@ -165,5 +174,6 @@ A phase-based checklist showing the current state of the project:
 - [x] Phase 3 — Core Layer 
 - [x] Phase 4 — Syncer Service 
 - [x] Phase 5 — API Service 
-- [x] Phase 6 — Docker Implementation (in progress)  
-- [ ] Phase 7 — Testing & QA 
+- [x] Phase 6 — Docker Implementation 
+- [x] Phase 7 — Testing & QA  
+- [ ] Phase 8 — Production Readiness (in progress) 
