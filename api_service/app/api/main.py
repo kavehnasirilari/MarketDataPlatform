@@ -35,10 +35,14 @@ orchestrator = ExecutionOrchestrator(
 )
 
 @app.get("/health")
-async def health_check(request: Request):
-    result = orchestrator.handle_request(request)
-    return result
-
+async def health_check():
+    return {
+        "type": "success",
+        "message": None,
+        "data": {
+            "status": "ok"
+        },
+    }
 
 @app.get("/candles/{exchange}/{market}/{symbol}/{interval}")
 async def get_candles(
