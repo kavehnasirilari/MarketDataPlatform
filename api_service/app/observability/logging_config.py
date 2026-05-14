@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 
 
 class JsonExtraFormatter(logging.Formatter):
@@ -18,7 +18,7 @@ class JsonExtraFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         base = {
-            "ts": datetime.utcfromtimestamp(record.created).isoformat() + "Z",
+            "ts": datetime.fromtimestamp(record.created, UTC).isoformat().replace("+00:00", "Z"),
             "level": record.levelname,
             "logger": record.name,
             "msg": record.getMessage(),

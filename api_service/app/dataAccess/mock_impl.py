@@ -154,4 +154,8 @@ class MockMetaDataAccessor(MetadataAccessor):
 
                 result["exchanges"].append(exchange_obj)
 
-        return MetadataResult(available = bool(rows), payload = result)
+        return MetadataResult(
+            available=bool(rows),
+            message= None,
+            payload=result,
+        )
