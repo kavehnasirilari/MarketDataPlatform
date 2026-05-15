@@ -15,6 +15,15 @@ jobs:
     name: Run pytest
     runs-on: ubuntu-latest
 
+    env:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: test_market_data
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      SQL_ECHO: "false"
+      ENV: test
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,5 +42,5 @@ jobs:
           pip install -r api_service/requirements.txt
           pip install -r syncer_service/requirements.txt
 
-      - name: Run tests
-        run: pytest -v
+      - name: Run CI-safe tests
+        run: pytest tests/unit tests/integration/internal -v
