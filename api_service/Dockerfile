@@ -12,13 +12,13 @@ RUN apt-get update && apt-get install -y \
 
 # Copy dependencies file
 COPY api_service/requirements.txt ./requirements.txt
-
 # Install Python packages
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project code
 COPY api_service ./api_service
 COPY database ./database
+COPY alembic.ini ./alembic.ini
 
 # Expose API port
 EXPOSE 8000

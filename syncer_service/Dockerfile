@@ -4,6 +4,8 @@ FROM python:3.12-slim
 # Set working directory
 WORKDIR /app
 
+ENV PYTHONUNBUFFERED=1
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -22,4 +24,4 @@ COPY database ./database
 COPY core ./core
 
 # Default command
-CMD ["python", "-m", "syncer_service.syncer.run_base_sync"]
+CMD ["sh", "-c", "python -m syncer_service.syncer.run_base_sync && python -m syncer_service.syncer.run_candle_scheduler"]
