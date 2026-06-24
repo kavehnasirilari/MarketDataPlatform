@@ -1,284 +1,143 @@
 # Market Data Platform
 
-**A production-oriented backend platform for collecting, normalizing, storing, and serving cryptocurrency market data from multiple exchanges through a unified API.**
+A backend platform for collecting, normalizing, storing, and serving cryptocurrency market data through a unified API.
 
 ---
 
 ## Overview
 
-Market Data Platform is a Python-based backend system designed to solve a common problem in cryptocurrency infrastructure: every exchange exposes market data differently.
+Market Data Platform collects market data from multiple cryptocurrency exchanges, converts exchange-specific formats into canonical models, stores them in PostgreSQL, and exposes them through a unified FastAPI interface.
 
-Symbols, intervals, endpoints, response formats, and market structures vary between exchanges, making it difficult to build reliable multi-exchange applications.
-
-This platform provides a unified market data layer by:
-
-* Collecting data from multiple exchanges
-* Converting exchange-specific formats into canonical models
-* Validating and storing market data
-* Exposing a consistent API to consumers
-* Providing a foundation for trading systems, research tools, and analytics platforms
-
-The project was built with a strong focus on backend architecture, maintainability, extensibility, and operational reliability.
+The project is designed as a production-oriented backend system with a strong focus on architecture, maintainability, and extensibility.
 
 ---
 
-## Key Features
+## Quick Start
 
-### Multi-Exchange Support
+### Clone Repository
 
-Currently integrated exchanges include:
-
-* Binance Futures
-* Hyperliquid Futures
-* Additional exchanges can be added through the adapter system
-
-### Canonical Data Model
-
-Exchange-specific formats are normalized into a consistent internal representation:
-
-* Canonical Symbols
-* Canonical Intervals
-* Unified Candle Model
-
-This allows consumers to work with a single data structure regardless of data source.
-
-### Metadata Synchronization
-
-A dedicated Syncer Service is responsible for:
-
-* Exchange discovery
-* Symbol synchronization
-* Market synchronization
-* Interval synchronization
-
-### Historical Candle Storage
-
-Market data is persisted in PostgreSQL with:
-
-* Data validation
-* Duplicate protection
-* Timestamp consistency checks
-* Exchange-specific normalization
-
-### Unified API
-
-The platform exposes market data through FastAPI endpoints including:
-
-```http
-GET /metadata
-GET /candles/{exchange}/{market}/{symbol}/{interval}
-GET /health
+```bash
+git clone https://github.com/kavehnasirilari/MarketDataPlatform.git
+cd MarketDataPlatform
 ```
 
-### Consumer Attribution & Rate Limiting
+### Configure Environment
 
-The API tracks consumer usage through:
+Create a local environment file:
+```bash
+cp .env.example .env
+```
 
-* IP attribution
-* Consumer identification
-* Usage accounting
-* Rate limiting policies
+Review and update the values inside `.env` if necessary.
 
-This provides a foundation for future API key management and usage-based access control.
+### Start The Platform
+
+```bash
+docker compose up -d --build
+```
+
+### Verify Services
+
+```bash
+docker compose ps
+```
+Expected services:
+- postgres
+- migration-service
+- api-service
+- syncer-service
+
+### Access API
+
+By default the API is available at:
+
+```text
+http://localhost:8000
+```
+
+### Test API
+
+```bash
+curl http://localhost:8000/health
+```
+
+```bash
+curl http://localhost:8000/metadata
+```
+
+```bash
+curl http://localhost:8000/candles/hyperliquid/futures/ETH-USDC/1m
+```
 
 ---
 
 ## Architecture
 
 ```text
-+------------------+
-| Exchange APIs    |
-+--------+---------+
-         |
-         v
-+------------------+
-| Syncer Service   |
-+--------+---------+
-         |
-         v
-+------------------+
-| PostgreSQL       |
-+--------+---------+
-         |
-         v
-+------------------+
-| FastAPI Service  |
-+--------+---------+
-         |
-         v
-+------------------+
-| API Consumers    |
-+------------------+
+Exchange APIs
+      │
+      ▼
+Syncer Service
+      │
+      ▼
+ PostgreSQL
+      │
+      ▼
+ FastAPI API
+      │
+      ▼
+ API Consumers
 ```
 
-### Services
+### Components
 
-#### Syncer Service
+**Syncer Service**
+- Exchange communication
+- Metadata synchronization
+- Candle ingestion
 
-Responsible for:
+**API Service**
+- Market data delivery
+- Consumer attribution
+- Rate limiting
 
-* Exchange communication
-* Metadata synchronization
-* Market data ingestion
-* Data validation
+**Database Module**
+- SQLAlchemy models
+- Session management
+- Database configuration
+- Alembic migrations
 
-#### API Service
-
-Responsible for:
-
-* Serving market data
-* Request validation
-* Attribution
-* Rate limiting
-* API responses
-
-#### Shared Core Module
-
-Contains:
-
-* Canonical models
-* Exchange adapters
-* Mappings
-* Shared contracts
-* Domain logic
-
----
-
-## Engineering Challenges Solved
-
-### Data Integrity
-
-The platform performs multiple validation steps before persisting data:
-
-* Open candles are excluded
-* Duplicate candles are detected
-* Timestamp continuity is validated
-* Exchange anomalies are filtered
-* Invalid records are rejected
-
-### Extensible Exchange Integration
-
-The adapter architecture allows new exchanges to be added without changing consumer-facing APIs.
-
-Consumers interact with a unified contract while exchange-specific complexity remains isolated inside adapters.
-
-### API Protection
-
-The platform includes:
-
-* Consumer attribution
-* Usage tracking
-* Rate limiting
-* Request accounting
-
-allowing abusive consumers to be identified and restricted independently.
-
-### Clean Separation of Concerns
-
-The project separates responsibilities between:
-
-* Data ingestion
-* Storage
-* Business logic
-* API delivery
-
-making the system easier to maintain and extend.
-
----
-
-## Technology Stack
-
-### Backend
-
-* Python 3.12
-* FastAPI
-* SQLAlchemy 2.x
-* Pydantic
-
-### Database
-
-* PostgreSQL 16
-* Alembic
-
-### Infrastructure
-
-* Docker
-* Docker Compose
-
-### Testing
-
-* Pytest
-* Integration Testing
-* End-to-End Testing
+**Shared Core**
+- Canonical models
+- Exchange adapters
+- Shared contracts
 
 ---
 
 ## Current Status
 
-### Functional MVP Completed
+### Completed
 
-Implemented:
+- Multi-exchange adapter architecture
+- Metadata synchronization
+- Candle ingestion pipeline
+- PostgreSQL persistence layer
+- FastAPI service
+- Dockerized deployment
+- VPS deployment
+- Integration testing
+- End-to-end validation
 
-* Multi-exchange adapter architecture
-* Metadata synchronization
-* Candle ingestion pipeline
-* Canonical market data models
-* PostgreSQL persistence layer
-* FastAPI service
-* Dockerized deployment
-* Consumer attribution
-* Rate limiting foundation
-* Integration tests
-* End-to-end validation tests
+### Next Development Phase
 
-### In Progress
-
-* Production hardening
-* Async ingestion pipeline
-* Background workers
-* Caching layer
-* Monitoring and observability
+- Observability
+- Redis integration
+- Async ingestion pipeline
+- API key management
+- Historical backfill
 
 ---
 
-## Design Goals
+## License
 
-The project prioritizes:
-
-* Simplicity
-* Reliability
-* Extensibility
-* Clear architecture
-* Production-oriented design
-
-rather than maximizing features in early versions.
-
----
-
-## Future Improvements
-
-Planned future work includes:
-
-* Redis caching layer
-* Async ingestion workers
-* WebSocket streaming
-* Monitoring and alerting
-* Advanced rate limiting
-* API key management
-* Historical backfill services
-* Multi-region deployment support
-
----
-
-## Project Goal
-
-Beyond solving a real technical problem, this project serves as an exploration of backend engineering practices including:
-
-* Service-oriented architecture
-* Data modeling
-* API design
-* Exchange integrations
-* Data quality validation
-* Operational reliability
-
-The goal is to build a maintainable system that can evolve from a learning project into a production-grade market data platform.
+MIT License
