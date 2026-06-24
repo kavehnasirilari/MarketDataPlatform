@@ -30,7 +30,7 @@ def sync_exchanges(session):
         if exchange_name not in exchange_names_in_db:
             
             logger.info("Adding new exchange to the database: %s", exchange_name)
-            new_exchange = Exchange(name= exchange_name, status = ExchangeStatus.ACTIVE)
+            new_exchange = Exchange(name= exchange_name, status = ExchangeStatus.ACTIVE.value)
             session.add(new_exchange)
             added += 1
             

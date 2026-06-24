@@ -20,6 +20,7 @@ services:
     build:
       context: .
       dockerfile: api_service/Dockerfile
+    image: marketdataplatform-api:latest
     container_name: mdp_api
     env_file: .env
     environment:
@@ -27,10 +28,26 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migration-service:
+        condition: service_completed_successfully
     ports:
       - "8000:8000"
     restart: unless-stopped
     networks:
+      - mdp_network
+
+  migration-service:
+    image: marketdataplatform-api:latest
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: alembic upgrade head
+    restart: "no"
+    networks: 
       - mdp_network
 
   syncer-service:
@@ -44,13 +61,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    restart: "no"
+      migration-service:
+        condition: service_completed_successfully
+    restart: unless-stopped
     networks:
       - mdp_network
 
 volumes:
   marketdataplatform_postgres_data:
-    external: true
 
 networks:
   mdp_network:
