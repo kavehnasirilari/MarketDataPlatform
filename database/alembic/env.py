@@ -1,4 +1,5 @@
 from logging.config import fileConfig
+import os
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -11,6 +12,25 @@ import database.models  # Import all your models to ensure they are registered w
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+
+def build_database_url() -> str:
+    user = os.getenv("POSTGRES_USER")
+    password = os.getenv("POSTGRES_PASSWORD")
+    db = os.getenv("POSTGRES_DB")
+    host = os.getenv("POSTGRES_HOST", "localhost")
+    port = os.getenv("POSTGRES_PORT", "5432")
+
+    if not user or not password or not db:
+        raise RuntimeError(
+            "Missing required database env vars: "
+            "POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB"
+        )
+
+    return f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
+
+config.set_main_option("sqlalchemy.url", build_database_url())
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

@@ -14,10 +14,15 @@ logger = logging.getLogger(__name__)
 def run_base_sync(session):
     logger.info("starting base sync")
     sync_exchanges(session)
+    session.commit()
     sync_symbols(session)
+    session.commit()
     sync_intervals(session)
+    session.commit()
     sync_exchange_markets(session)
+    session.commit()
     sync_supported_markets(session)
+    session.commit()
     logger.info("base sync completed")
 
 
