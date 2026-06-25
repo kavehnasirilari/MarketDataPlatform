@@ -22,7 +22,7 @@ def assert_error_response_contract(body: dict):
 
 
 def test_candles_endpoint_returns_success_response_contract():
-    response = client.get("/candles/binance/futures/BTC-USDT/1m")
+    response = client.get("/candles/hyperliquid/futures/ETH-USDC/1m")
 
     assert response.status_code == 200
 
@@ -35,7 +35,7 @@ def test_candles_endpoint_returns_success_response_contract():
 
 
 def test_candles_endpoint_returns_error_for_invalid_exchange():
-    response = client.get("/candles/invalid/futures/BTC-USDT/1m")
+    response = client.get("/candles/invalid/futures/ETH-USDC/1m")
 
     assert response.status_code == 200
 
@@ -45,7 +45,7 @@ def test_candles_endpoint_returns_error_for_invalid_exchange():
 
 
 def test_candles_endpoint_returns_error_for_unknown_symbol():
-    response = client.get("/candles/binance/futures/UNKNOWN-COIN/1m")
+    response = client.get("/candles/hyperliquid/futures/unnown_coin/1m")
 
     assert response.status_code == 200
 

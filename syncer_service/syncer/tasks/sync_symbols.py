@@ -29,7 +29,7 @@ def _parse_symbol(symbol: str) -> tuple[str, str]:
     
     return base, quote
 
-def sync_symbols(session):
+def sync_symbols(session, cycle_id: str | None = None):
     """
     Synchronize canonical symbols from Core into database.
     """
@@ -43,9 +43,16 @@ def sync_symbols(session):
     deleted = 0
 
     logger.info(
-        "starting symbol synchronization (core=%s, db= %s)",
-        len(core_symbols),
-        len(db_symbol_names),
+        "Symbol synchronization started",
+        extra={
+            "service": "syncer-service",
+            "event": "syncer.base_sync.symbols_started",
+            "status": "started",
+            "operation": "sync_symbols",
+            "cycle_id": cycle_id,
+            "core_count": len(core_symbols),
+            "db_count": len(db_symbols),
+        },
     )
 
     # INSERT: Core -> DB
@@ -60,7 +67,21 @@ def sync_symbols(session):
                 quote_asset = quote
             ))
             added += 1 
-            logger.info("Added canonical symbol: %s", symbol)
+            
+            logger.info(
+                "Canonical symbol added",
+                extra={
+                    "service": "syncer-service",
+                    "event": "syncer.base_sync.symbol_added",
+                    "status": "success",
+                    "operation": "sync_symbols",
+                    "cycle_id": cycle_id,
+                    "symbol": symbol,
+                    "base_asset": base,
+                    "quote_asset": quote,
+                },
+            )
+
 
     # DELETE: DB -> Core
     for db_symbol in db_symbols:
@@ -68,13 +89,31 @@ def sync_symbols(session):
             
             session.delete(db_symbol)
             deleted += 1
-            logger.info("Deleted canonical symbol: %s", db_symbol.symbol)
+
+            logger.info(
+                "Canonical symbol deleted",
+                extra={
+                    "service": "syncer-service",
+                    "event": "syncer.base_sync.symbol_deleted",
+                    "status": "success",
+                    "operation": "sync_symbols",
+                    "cycle_id": cycle_id,
+                    "symbol": db_symbol.symbol,
+                },
+            )            
 
     logger.info(
-        "Symbol sync completed: added=%s, deleted=%s, total=%s",
-        added,
-        deleted,
-        len(core_symbols),
+        "Symbol synchronization completed",
+        extra={
+            "service": "syncer-service",
+            "event": "syncer.base_sync.symbols_completed",
+            "status": "success",
+            "operation": "sync_symbols",
+            "cycle_id": cycle_id,
+            "added_count": added,
+            "deleted_count": deleted,
+            "total_count": len(core_symbols),
+        },
     )
 
     return {
@@ -85,9 +124,10 @@ def sync_symbols(session):
 
 
 if __name__ == "__main__":
-    from syncer_service.syncer.bootstrap import init_logging, preflight_validation
+    from syncer_service.syncer.bootstrap import preflight_validation
+    from core.observability.logging_config import configure_logging
 
-    init_logging()
+    configure_logging()
     
 
     with get_session() as session:

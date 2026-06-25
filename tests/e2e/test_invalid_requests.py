@@ -19,7 +19,7 @@ def assert_error_response_contract(body: dict):
 
 def test_invalid_exchange_returns_error_contract():
     response = requests.get(
-        f"{BASE_URL}/candles/invalid_exchange/futures/BTC-USDT/1m",
+        f"{BASE_URL}/candles/invalid_exchange/futures/ETH-USDC/1m",
         timeout=10,
     )
 
@@ -32,7 +32,7 @@ def test_invalid_exchange_returns_error_contract():
 
 def test_invalid_market_type_returns_error_contract():
     response = requests.get(
-        f"{BASE_URL}/candles/binance/invalid_market/BTC-USDT/1m",
+        f"{BASE_URL}/candles/hyperliquid/invalid_market/ETH-USDC/1m",
         timeout=10,
     )
 
@@ -45,7 +45,7 @@ def test_invalid_market_type_returns_error_contract():
 
 def test_invalid_symbol_returns_error_contract():
     response = requests.get(
-        f"{BASE_URL}/candles/binance/futures/INVALID-SYMBOL/1m",
+        f"{BASE_URL}/candles/hyperliquid/futures/invalid_symbol/1m",
         timeout=10,
     )
 
@@ -58,7 +58,7 @@ def test_invalid_symbol_returns_error_contract():
 
 def test_invalid_interval_returns_error_contract():
     response = requests.get(
-        f"{BASE_URL}/candles/binance/futures/BTC-USDT/999m",
+        f"{BASE_URL}/candles/hyperliquid/futures/ETH-USDC/999m",
         timeout=10,
     )
 
