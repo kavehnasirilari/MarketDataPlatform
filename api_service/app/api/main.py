@@ -2,29 +2,55 @@
 import logging
 from typing import Optional
 from fastapi import FastAPI, Request
+from fastapi.responses import Response
+from contextlib import asynccontextmanager
 from api_service.app.api.flow.execution import ExecutionOrchestrator
 from api_service.app.attribution.http_impl import HttpAttributionResolver
 from api_service.app.policy.mock_impl import MockPolicyEngine
 from api_service.app.dataAccess.mock_impl import MockDataAccessor, MockMetaDataAccessor
 from api_service.app.semantics.mock_impl import MockSemanticAnnotator
-from api_service.app.observability.logging_config import configure_logging
+from core.observability.logging_config import configure_logging
 
 configure_logging()
 
-
+logger = logging.getLogger(__name__)
 # فقط app خودت
 logging.getLogger("app").setLevel(logging.INFO)
 
 # بستن کامل نویز
 for name in list(logging.root.manager.loggerDict.keys()):
     if name.startswith("sqlalchemy"):
-        l = logging.getLogger(name)
-        l.handlers.clear()
-        l.propagate = False
-        l.disabled = True
+        sqlalchemy_logger = logging.getLogger(name)
+        sqlalchemy_logger.handlers.clear()
+        sqlalchemy_logger.propagate = False
+        sqlalchemy_logger.disabled = True
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info(
+        "API service started",
+        extra={
+            "service": "api-service",
+            "event": "api.service.started",
+            "status": "success",
+            "operation": "startup",
+        },
+    )
+
+    yield
+
+    logger.info(
+        "API service stopped",
+        extra={
+            "service": "api-service",
+            "event": "api.service.stopped",
+            "status": "success",
+            "operation": "shutdown",
+        },
+    )
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 orchestrator = ExecutionOrchestrator(
     attribution=HttpAttributionResolver(),
@@ -33,6 +59,12 @@ orchestrator = ExecutionOrchestrator(
     metadata=MockMetaDataAccessor(),
     semantics=MockSemanticAnnotator(),
 )
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return Response(status_code=204)
+
 
 @app.get("/health")
 async def health_check():
@@ -63,7 +95,7 @@ async def get_candles(
 
     result = orchestrator.handle_request(
         request=request,
-        route="gat_candle",
+        route="get_candles",
         payload=payload
     )
     return result

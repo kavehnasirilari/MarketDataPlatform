@@ -6,7 +6,7 @@ from database.models import ExchangeMarket, Interval, SupportedMarket
 logger = logging.getLogger(__name__)
 
 
-def sync_supported_markets(session):
+def sync_supported_markets(session, cycle_id: str | None = None):
     # Load DB state
     exchange_markets = session.query(ExchangeMarket).all()
     intervals = session.query(Interval).all()
@@ -43,23 +43,22 @@ def sync_supported_markets(session):
 
         core_set.add((em.id, interval.id))
 
-    # DB active set
-    db_active_set = {
-        (row.exchange_market_id, row.interval_id)
-        for row in db_rows
-        if row.status == "active"
-    }
-
     added = 0
     activated = 0
     deactivated = 0
 
     logger.info(
-        "Start supported market synchronization (core=%s, db=%s)",
-        len(core_set),
-        len(db_rows),
+        "Supported market synchronization started",
+        extra={
+            "service": "syncer-service",
+            "event": "syncer.base_sync.supported_markets_started",
+            "status": "started",
+            "operation": "sync_supported_markets",
+            "cycle_id": cycle_id,
+            "core_count": len(core_set),
+            "db_count": len(db_rows),
+        },
     )
-
     # INSERT or ACTIVATE
     for exchange_market_id, interval_id in core_set:
         row = next(
@@ -81,9 +80,34 @@ def sync_supported_markets(session):
             )
             added += 1
 
+            logger.info(
+                "Supported market added",
+                extra={
+                    "service": "syncer-service",
+                    "event": "syncer.base_sync.supported_market_added",
+                    "status": "success",
+                    "operation": "sync_supported_markets",
+                    "cycle_id": cycle_id,
+                    "exchange_market_id": exchange_market_id,
+                    "interval_id": interval_id,
+                },
+            )
+
         elif row.status != "active":
             row.status = "active"
             activated += 1
+            logger.info(
+                "Supported market activated",
+                extra={
+                    "service": "syncer-service",
+                    "event": "syncer.base_sync.supported_market_activated",
+                    "status": "success",
+                    "operation": "sync_supported_markets",
+                    "cycle_id": cycle_id,
+                    "exchange_market_id": row.exchange_market_id,
+                    "interval_id": row.interval_id,
+                },
+            )
 
     # DEACTIVATE (anything not in allow-list)
     for row in db_rows:
@@ -91,13 +115,32 @@ def sync_supported_markets(session):
         if key not in core_set and row.status == "active":
             row.status = "inactive"
             deactivated += 1
+            logger.info(
+                "Supported market deactivated",
+                extra={
+                    "service": "syncer-service",
+                    "event": "syncer.base_sync.supported_market_deactivated",
+                    "status": "success",
+                    "operation": "sync_supported_markets",
+                    "cycle_id": cycle_id,
+                    "exchange_market_id": row.exchange_market_id,
+                    "interval_id": row.interval_id,
+                },
+            )
 
     logger.info(
-        "SupportedMarket sync completed: added=%s, activated=%s, deactivated=%s, total=%s",
-        added,
-        activated,
-        deactivated,
-        len(core_set),
+        "Supported market synchronization completed",
+        extra={
+            "service": "syncer-service",
+            "event": "syncer.base_sync.supported_markets_completed",
+            "status": "success",
+            "operation": "sync_supported_markets",
+            "cycle_id": cycle_id,
+            "added_count": added,
+            "activated_count": activated,
+            "deactivated_count": deactivated,
+            "total_count": len(core_set),
+        },
     )
 
     return {
@@ -108,10 +151,12 @@ def sync_supported_markets(session):
     }
 
 if __name__ == "__main__":
-    from syncer_service.syncer.bootstrap import init_logging, preflight_validation
+    from syncer_service.syncer.bootstrap import preflight_validation
     from database.session import get_session
 
-    init_logging()
+    from core.observability.logging_config import configure_logging
+
+    configure_logging()
     
 
     with get_session() as session:

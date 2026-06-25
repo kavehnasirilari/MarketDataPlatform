@@ -7,7 +7,7 @@ from api_service.app.dataAccess.base import DataResault
 from api_service.app.policy.base import PolicyDecision, PolicyDecisionType
 from api_service.app.semantics.mock_impl import MockSemanticAnnotator
 
-from api_service.app.observability.logging_config import JsonExtraFormatter
+from core.observability.logging_config import JsonExtraFormatter
 
 
 def test_json_extra_formatter_outputs_valid_json_with_base_fields():

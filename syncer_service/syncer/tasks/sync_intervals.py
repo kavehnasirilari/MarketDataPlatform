@@ -17,7 +17,7 @@ def _extract_core_intervals() -> set[EnumInterval]:
     return intervals
 
 
-def sync_intervals(session):
+def sync_intervals(session, cycle_id: str | None = None):
     """
     Synchronize canonical intervals from Core into the database.
     """
@@ -32,9 +32,16 @@ def sync_intervals(session):
     deleted = 0
 
     logger.info(
-        "Start interval synchronization (core=%s, db=%s)",
-        len(core_intervals),
-        len(db_rows),
+        "Interval synchronization started",
+        extra={
+            "service": "syncer-service",
+            "event": "syncer.base_sync.intervals_started",
+            "status": "started",
+            "operation": "sync_intervals",
+            "cycle_id": cycle_id,
+            "core_count": len(core_intervals),
+            "db_count": len(db_rows),
+        },
     )
 
     # INSERT: Core -> DB
@@ -54,7 +61,16 @@ def sync_intervals(session):
             ))
             added += 1
             logger.info(
-                "Added interval: %s", core_interval.value
+                "Interval added",
+                extra={
+                    "service": "syncer-service",
+                    "event": "syncer.base_sync.interval_added",
+                    "status": "success",
+                    "operation": "sync_intervals",
+                    "cycle_id": cycle_id,
+                    "interval": core_interval.value,
+                    "ms": ms,
+                },
             )
 
 
@@ -64,14 +80,31 @@ def sync_intervals(session):
             session.delete(db_row)
 
             deleted += 1
-            logger.info("Deleted interval: %s", db_row.interval)
+            logger.info(
+                "Interval deleted",
+                extra={
+                    "service": "syncer-service",
+                    "event": "syncer.base_sync.interval_deleted",
+                    "status": "success",
+                    "operation": "sync_intervals",
+                    "cycle_id": cycle_id,
+                    "interval": db_row.interval,
+                },
+            )
 
 
     logger.info(
-        "Interval sync completed: added= %s, deleted=%s, total=%s",
-        added,
-        deleted,
-        len(core_intervals),
+        "Interval synchronization completed",
+        extra={
+            "service": "syncer-service",
+            "event": "syncer.base_sync.intervals_completed",
+            "status": "success",
+            "operation": "sync_intervals",
+            "cycle_id": cycle_id,
+            "added_count": added,
+            "deleted_count": deleted,
+            "total_count": len(core_intervals),
+        },
     )
 
 
@@ -82,10 +115,11 @@ def sync_intervals(session):
     }
 
 if __name__ == "__main__":
-    from syncer_service.syncer.bootstrap import init_logging, preflight_validation
+    from syncer_service.syncer.bootstrap import preflight_validation
     from database.session import get_session
+    from core.observability.logging_config import configure_logging
 
-    init_logging()
+    configure_logging()
     
 
     with get_session() as session:

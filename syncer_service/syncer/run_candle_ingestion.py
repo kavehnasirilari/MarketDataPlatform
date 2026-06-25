@@ -5,7 +5,6 @@ import logging
 from database.session import get_session
 from database.models import Exchange
 
-from syncer_service.syncer.bootstrap import init_logging
 from syncer_service.syncer.ingestion.targets import load_ingestion_units
 from syncer_service.syncer.ingestion.pipeline import ingest_unit
 
@@ -23,13 +22,21 @@ def preflight_validation() -> None:
             )
 
 
-def main() -> None:
+def main(cycle_id: str) -> None:
     # -------------------------
     # bootstrap
     # -------------------------
-    init_logging()
     logger = logging.getLogger(__name__)
-    logger.info("Starting candle ingestion job")
+    logger.info(
+        "Starting candle ingestion job",
+        extra={
+        "service": "syncer-service",
+        "event": "syncer.job_started",
+        "status": "started",
+        "operation": "candle_ingestion",
+        "cycle_id": cycle_id,
+    },
+    )
 
     # -------------------------
     # preflight
@@ -43,10 +50,30 @@ def main() -> None:
         units = load_ingestion_units(session)
 
     if not units:
-        logger.warning("No ingestion units found. Exiting.")
+        logger.warning(
+            "No ingestion units found. Exiting.",
+            extra={
+            "service": "syncer-service",
+            "event": "syncer.job_completed",
+            "status": "no_units",
+            "operation": "candle_ingestion",
+            "unit_count": 0,
+            "cycle_id": cycle_id,
+            },
+        )
         return
 
-    logger.info("Loaded %d ingestion units", len(units))
+    logger.info(
+        "Ingestion units loaded",
+        extra = {
+            "service": "syncer-service",
+            "event": "syncer.units_loaded",
+            "status": "success",
+            "operation": "load_ingestion_units",
+            "unit_count": len(units),
+            "cycle_id": cycle_id,
+            }
+        )
 
     # -------------------------
     # run ingestion per unit
@@ -56,27 +83,46 @@ def main() -> None:
 
     for unit in units:
         try:
-            ingest_unit(unit=unit)
+            ingest_unit(unit=unit, cycle_id= cycle_id)
             success += 1
-        except Exception as e:
+        except Exception as exc:
             failed += 1
             logger.exception(
-                "Ingestion failed for unit %s:%s:%s:%s",
-                unit.exchange_name,
-                unit.market_type,
-                unit.canonical_symbol,
-                unit.interval,
+                "Ingestion failed",
+                extra={
+                    "service": "syncer-service",
+                    "event": "syncer.unit_failed",
+                    "status": "error",
+                    "operation": "fetch_candles",
+                    "exchange": unit.exchange_name,
+                    "market_type": unit.market_type,
+                    "symbol": unit.canonical_symbol,
+                    "interval": unit.interval,
+                    "error_message": str(exc),
+                    "cycle_id": cycle_id,
+                },
             )
 
     # -------------------------
     # job summary
     # -------------------------
     logger.info(
-        "Candle ingestion job finished. success=%d failed=%d",
-        success,
-        failed,
+        "Candle ingestion job completed",
+        extra={
+            "service": "syncer-service",
+            "event": "syncer.job_completed",
+            "status": "success" if failed == 0 else "partial_success",
+            "operation": "candle_ingestion",
+            "success_count": success,
+            "failed_count": failed,
+            "cycle_id": cycle_id,
+        },
     )
 
 
 if __name__ == "__main__":
-    main()
+    import uuid
+    from core.observability.logging_config import configure_logging
+
+    configure_logging()
+    main(cycle_id=str(uuid.uuid4()))
