@@ -104,13 +104,13 @@ def test_resolver_captures_request_metadata():
 
     request = make_request(
         headers={"User-Agent": "pytest-client"},
-        path="/candles/binance/futures/BTC-USDT/1m",
+        path="/candles/hyperliquid/futures/ETH-USDC/1m",
         method="GET",
     )
 
     result = resolver.resolve(request)
 
-    assert result.path == "/candles/binance/futures/BTC-USDT/1m"
+    assert result.path == "/candles/hyperliquid/futures/ETH-USDC/1m"
     assert result.method == "GET"
     assert result.user_agent == "pytest-client"
     assert result.received_at is not None

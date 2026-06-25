@@ -37,7 +37,7 @@ def _build_core_exchange_markets():
     return core_set
 
 
-def sync_exchange_markets(session):
+def sync_exchange_markets(session, cycle_id: str | None = None):
     core_markets = _build_core_exchange_markets()
 
     # Load DB state
@@ -65,9 +65,16 @@ def sync_exchange_markets(session):
     deleted = 0
 
     logger.info(
-        "Start exchange market synchronization (core=%s, db=%s)",
-        len(core_markets),
-        len(db_rows),
+        "Exchange market synchronization started",
+        extra={
+            "service": "syncer-service",
+            "event": "syncer.base_sync.exchange_markets_started",
+            "status": "started",
+            "operation": "sync_exchange_markets",
+            "cycle_id": cycle_id,
+            "core_count": len(core_markets),
+            "db_count": len(db_rows),
+        },
     )
 
     # INSERT: Core -> DB
@@ -94,10 +101,18 @@ def sync_exchange_markets(session):
             )
             added += 1
             logger.info(
-                "Added exchange market: %s %s %s",
-                exchange_name,
-                symbol,
-                market_type,
+                "Exchange market added",
+                extra={
+                    "service": "syncer-service",
+                    "event": "syncer.base_sync.exchange_market_added",
+                    "status": "success",
+                    "operation": "sync_exchange_markets",
+                    "cycle_id": cycle_id,
+                    "exchange": exchange_name,
+                    "symbol": symbol,
+                    "exchange_symbol": exchange_symbol,
+                    "market_type": market_type,
+                },
             )
 
     # DELETE: DB -> Core
@@ -113,17 +128,32 @@ def sync_exchange_markets(session):
             session.delete(row)
             deleted += 1
             logger.info(
-                "Deleted exchange market: %s %s %s",
-                row.exchange.name,
-                row.canonical_symbol.symbol,
-                row.market_type,
+                "Exchange market deleted",
+                extra={
+                    "service": "syncer-service",
+                    "event": "syncer.base_sync.exchange_market_deleted",
+                    "status": "success",
+                    "operation": "sync_exchange_markets",
+                    "cycle_id": cycle_id,
+                    "exchange": row.exchange.name,
+                    "symbol": row.canonical_symbol.symbol,
+                    "exchange_symbol": row.exchange_symbol,
+                    "market_type": row.market_type,
+                },
             )
 
     logger.info(
-        "ExchangeMarket sync completed: added=%s, deleted=%s, total=%s",
-        added,
-        deleted,
-        len(core_markets),
+        "Exchange market synchronization completed",
+        extra={
+            "service": "syncer-service",
+            "event": "syncer.base_sync.exchange_markets_completed",
+            "status": "success",
+            "operation": "sync_exchange_markets",
+            "cycle_id": cycle_id,
+            "added_count": added,
+            "deleted_count": deleted,
+            "total_count": len(core_markets),
+        },
     )
 
     return {
@@ -133,10 +163,11 @@ def sync_exchange_markets(session):
     }
 
 if __name__ == "__main__":
-    from syncer_service.syncer.bootstrap import init_logging, preflight_validation
+    from syncer_service.syncer.bootstrap import preflight_validation
     from database.session import get_session
+    from core.observability.logging_config import configure_logging
 
-    init_logging()
+    configure_logging()
     
 
     with get_session() as session:

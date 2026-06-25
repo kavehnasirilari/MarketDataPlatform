@@ -2,7 +2,7 @@ import requests
 
 
 BASE_URL = "http://localhost:8000"
-CANDLES_URL = f"{BASE_URL}/candles/binance/futures/BTC-USDT/1m"
+CANDLES_URL = f"{BASE_URL}/candles/hyperliquid/futures/ETH-USDC/1m"
 
 
 def get_candles():

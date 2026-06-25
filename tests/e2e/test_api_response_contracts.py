@@ -30,13 +30,14 @@ def test_metadata_response_contract():
 
 def test_candles_response_contract():
     response = requests.get(
-        f"{BASE_URL}/candles/binance/futures/BTC-USDT/1m",
+        f"{BASE_URL}/candles/hyperliquid/futures/ETH-USDC/1m",
         timeout=10,
     )
 
     assert response.status_code == 200
 
     body = response.json()
+    # print(body)
 
     assert isinstance(body, dict)
     assert body["type"] == "success"
@@ -66,7 +67,7 @@ def test_candles_response_contract():
 
 def test_candles_are_sorted_by_timestamp_ascending():
     response = requests.get(
-        f"{BASE_URL}/candles/binance/futures/BTC-USDT/1m",
+        f"{BASE_URL}/candles/hyperliquid/futures/ETH-USDC/1m",
         timeout=10,
     )
 

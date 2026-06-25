@@ -17,6 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project code
 COPY api_service ./api_service
+COPY core ./core
 COPY database ./database
 COPY alembic.ini ./alembic.ini
 
