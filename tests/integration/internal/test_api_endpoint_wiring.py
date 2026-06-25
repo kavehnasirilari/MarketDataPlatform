@@ -79,19 +79,19 @@ def test_candles_endpoint_passes_expected_route_and_payload(monkeypatch):
 
     client = TestClient(api_main.app)
 
-    response = client.get("/candles/binance/futures/BTC-USDT/1m?limit=50")
+    response = client.get("/candles/hyperliquid/futures/ETH-USDC/1m?limit=50")
 
     assert response.status_code == 200
 
     assert fake_orchestrator.calls == [
         {
-            "path": "/candles/binance/futures/BTC-USDT/1m",
+            "path": "/candles/hyperliquid/futures/ETH-USDC/1m",
             "method": "GET",
-            "route": "gat_candle",
+            "route": "get_candles",
             "payload": {
-                "exchange": "binance",
+                "exchange": "hyperliquid",
                 "market": "futures",
-                "symbol": "BTC-USDT",
+                "symbol": "ETH-USDC",
                 "interval": "1m",
                 "limit": 50,
             },
@@ -105,7 +105,7 @@ def test_candles_endpoint_uses_default_limit(monkeypatch):
 
     client = TestClient(api_main.app)
 
-    response = client.get("/candles/binance/futures/BTC-USDT/1m")
+    response = client.get("/candles/hyperliquid/futures/ETH-USDC/1m")
 
     assert response.status_code == 200
 
@@ -137,7 +137,7 @@ def test_candles_endpoint_rejects_invalid_limit_before_orchestrator(monkeypatch)
 
     client = TestClient(api_main.app)
 
-    response = client.get("/candles/binance/futures/BTC-USDT/1m?limit=not-number")
+    response = client.get("/candles/hyperliquid/futures/ETH-USDC/1m?limit=not-number")
 
     assert response.status_code == 422
     assert fake_orchestrator.calls == []

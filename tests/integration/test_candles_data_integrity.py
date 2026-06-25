@@ -7,7 +7,7 @@ client = TestClient(app)
 
 
 def get_candles():
-    response = client.get("/candles/binance/futures/BTC-USDT/1m")
+    response = client.get("/candles/hyperliquid/futures/ETH-USDC/1m")
 
     assert response.status_code == 200
 

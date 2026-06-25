@@ -90,7 +90,7 @@ def test_orchestrator_returns_success_when_data_is_available():
 
     result = orchestrator.handle_request(
         request=fake_request(),
-        route="gat_candle",
+        route="get_candles",
         payload={},
     )
 
@@ -111,7 +111,7 @@ def test_orchestrator_returns_error_when_data_is_unavailable():
 
     result = orchestrator.handle_request(
         request=fake_request(),
-        route="gat_candle",
+        route="get_candles",
         payload={},
     )
 
@@ -131,7 +131,7 @@ def test_orchestrator_returns_error_when_policy_denies_request():
 
     result = orchestrator.handle_request(
         request=fake_request(),
-        route="gat_candle",
+        route="get_candles",
         payload={},
     )
 
@@ -178,7 +178,7 @@ def test_orchestrator_routes_candle_requests_to_data_accessor():
 
     result = orchestrator.handle_request(
         request=fake_request(),
-        route="gat_candle",
+        route="get_candles",
         payload={},
     )
 

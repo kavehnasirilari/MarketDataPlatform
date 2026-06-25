@@ -44,7 +44,7 @@ def test_metadata_endpoint_is_available():
 
 def test_candles_endpoint_is_available():
     response = wait_for_endpoint(
-        f"{BASE_URL}/candles/binance/futures/BTC-USDT/1m"
+        f"{BASE_URL}/candles/hyperliquid/futures/ETH-USDC/1m"
     )
 
     body = response.json()

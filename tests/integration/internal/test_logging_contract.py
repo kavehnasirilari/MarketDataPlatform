@@ -110,19 +110,17 @@ def test_execution_orchestrator_emits_expected_log_events(caplog):
     with caplog.at_level("INFO"):
         orchestrator.handle_request(
             request=fake_request(),
-            route="gat_candle",
+            route="get_candles",
             payload={},
         )
 
-    messages = [record.message for record in caplog.records]
+    events  = [getattr(record, "event", None) for record in caplog.records]
 
-    assert "Execution started" in messages
-    assert "Attribution resolved" in messages
-    assert "Policy evaluated" in messages
-    assert "Data fetched" in messages
-    assert "Semantics applied" in messages
-    assert "Execution completed" in messages
-    assert "Summery" in messages
+    assert "api.request.started" in events
+    assert "api.request.attribution_resolved" in events
+    assert "api.request.policy_evaluated" in events
+    assert "api.request.data_fetched" in events
+    assert "api.request.completed" in events
 
 
 def test_summary_log_contains_expected_fields(caplog):
@@ -137,17 +135,17 @@ def test_summary_log_contains_expected_fields(caplog):
     with caplog.at_level("INFO"):
         orchestrator.handle_request(
             request=fake_request(),
-            route="gat_candle",
+            route="get_candles",
             payload={},
         )
 
     summary_record = next(
         record for record in caplog.records
-        if record.message == "Summery"
+        if getattr(record, "event", None) == "api.request.completed"
     )
 
     assert summary_record.consumer_type == "public"
     assert summary_record.policy_decision == "ALLOW"
     assert summary_record.data_available is True
     assert summary_record.semantic_type == "success"
-    assert summary_record.latency >= 0    
+    assert summary_record.latency_ms >= 0    
