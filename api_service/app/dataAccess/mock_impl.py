@@ -1,6 +1,7 @@
 #api_service/app/dataAccess/mock_impl.py
 
 from api_service.app.dataAccess.base import DataResault, DataAccessor, MetadataResult, MetadataAccessor
+from api_service.app.cache.metadata_cache import get_cached_metadata, set_cached_metadata
 from database.session import get_session
 from sqlalchemy import text
 
@@ -70,9 +71,18 @@ class MockDataAccessor(DataAccessor):
             payload=rows
         )
 
-
 class MockMetaDataAccessor(MetadataAccessor):
     def fetch(self, request, payload) -> MetadataResult:
+
+        cached_metadata = get_cached_metadata(payload)
+
+        if cached_metadata is not None:
+            return MetadataResult(
+                available=True,
+                message=None,
+                payload=cached_metadata
+            )
+
 
         with get_session() as session:
 
@@ -153,6 +163,9 @@ class MockMetaDataAccessor(MetadataAccessor):
                     })
 
                 result["exchanges"].append(exchange_obj)
+            
+            if rows:
+                set_cached_metadata(payload=payload, metadata=result)
 
         return MetadataResult(
             available=bool(rows),
