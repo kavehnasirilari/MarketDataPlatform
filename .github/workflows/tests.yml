@@ -72,5 +72,8 @@ jobs:
           pip install -r api_service/requirements.txt
           pip install -r syncer_service/requirements.txt
 
+      - name: Run database migrations
+        run: alembic upgrade head
+
       - name: Run tests
         run: pytest -v
