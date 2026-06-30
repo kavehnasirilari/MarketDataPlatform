@@ -7,6 +7,7 @@ from database.models import Exchange
 
 from syncer_service.syncer.ingestion.targets import load_ingestion_units
 from syncer_service.syncer.ingestion.pipeline import ingest_unit
+from syncer_service.syncer.redis_lock import candle_sync_lock
 
 
 def preflight_validation() -> None:
@@ -80,11 +81,33 @@ def main(cycle_id: str) -> None:
     # -------------------------
     success = 0
     failed = 0
+    skipped = 0
 
     for unit in units:
         try:
-            ingest_unit(unit=unit, cycle_id= cycle_id)
-            success += 1
+            with candle_sync_lock(unit) as acquired:
+                if not acquired:
+                    skipped += 1
+                    logger.info(
+                        "Ingestion unit skipped because lock already exists",
+                        extra={
+                            "service": "syncer-service",
+                            "event": "syncer.unit_skipped_locked",
+                            "status": "skipped",
+                            "operation": "candle_ingestion",
+                            "exchange": unit.exchange_name,
+                            "market_type": unit.market_type,
+                            "symbol": unit.canonical_symbol,
+                            "interval": unit.interval,
+                            "cycle_id": cycle_id,
+                        },
+                    )
+                    continue
+                
+                # اینجا توی باکس اکوایر اجرا رو ادامه میدیم که بعد از اجرای این فانالی ردیس لاک اجرا شه
+                ingest_unit(unit=unit, cycle_id= cycle_id)
+                success += 1
+
         except Exception as exc:
             failed += 1
             logger.exception(
@@ -115,6 +138,7 @@ def main(cycle_id: str) -> None:
             "operation": "candle_ingestion",
             "success_count": success,
             "failed_count": failed,
+            "skipped_count": skipped,
             "cycle_id": cycle_id,
         },
     )

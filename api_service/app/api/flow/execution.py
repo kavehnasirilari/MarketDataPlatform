@@ -6,7 +6,7 @@ from api_service.app.attribution.base import AttributionResolver
 from api_service.app.policy.base import PolicyEngine, PolicyDecisionType
 from api_service.app.dataAccess.base import DataAccessor, MetadataAccessor
 from api_service.app.semantics.base import SemanticAnnotator
-from api_service.app.api.flow.consumption.snapshot import ConsumptionState
+from api_service.app.api.flow.consumption.redis_consumption import RedisSlidingWindowConsumptionState
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ class ExecutionOrchestrator:
         self.data = data
         self.metadata = metadata
         self.semantics = semantics
-        self.consumption_state = ConsumptionState(window_seconds=60)
+        self.consumption_state = RedisSlidingWindowConsumptionState(window_seconds=60)
 
     def handle_request(self, request, route: str, payload: dict):
 
