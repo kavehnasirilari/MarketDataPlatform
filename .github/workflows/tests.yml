@@ -2,7 +2,7 @@ name: Tests
 
 on:
   workflow_dispatch:
-  
+
   push:
     branches:
       - main
@@ -17,12 +17,40 @@ jobs:
     name: Run pytest
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_market_data
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test_user -d test_market_data"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     env:
       POSTGRES_USER: test_user
       POSTGRES_PASSWORD: test_password
       POSTGRES_DB: test_market_data
       POSTGRES_HOST: localhost
       POSTGRES_PORT: "5432"
+      REDIS_HOST: localhost
+      REDIS_PORT: "6379"
+      REDIS_DB: "0"
       SQL_ECHO: "false"
       ENV: test
 
@@ -43,6 +71,9 @@ jobs:
           pip install -r requirements-dev.txt
           pip install -r api_service/requirements.txt
           pip install -r syncer_service/requirements.txt
+
+      - name: Run database migrations
+        run: alembic upgrade head
 
       - name: Run CI-safe tests
         run: pytest tests/unit tests/integration/internal -v
