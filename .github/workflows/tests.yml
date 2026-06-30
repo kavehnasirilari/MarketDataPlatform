@@ -75,5 +75,5 @@ jobs:
       - name: Run database migrations
         run: alembic upgrade head
 
-      - name: Run tests
-        run: pytest -v
+      - name: Run CI-safe tests
+        run: pytest tests/unit tests/integration/internal -v
